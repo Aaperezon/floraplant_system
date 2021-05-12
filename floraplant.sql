@@ -9,7 +9,8 @@ CREATE TABLE trabajador(
 	id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     usuario VARCHAR(255) NOT NULL,
     contraseña TEXT NOT NULL,
-    nombre VARCHAR(30) NOT NULL
+    nombre VARCHAR(30) NOT NULL,
+    tipo VARCHAR(30) NOT NULL DEFAULT('trabajador')
 );
 -- SELECT * FROM trabajador;
 
@@ -197,7 +198,7 @@ BEGIN
 	UPDATE notificacion SET notificacion.visto = true WHERE notificacion.id = id_notificacion;
 END //
 DELIMITER ;
--- CALL VistoNotificacion(1);
+-- CALL VistoNotificacion(2);
 
 
 
@@ -239,11 +240,13 @@ DELIMITER ;
 -- ================== INSERCIONES EN TABLAS =============================== --
 
 INSERT INTO trabajador(usuario, contraseña,nombre) VALUES
-('a','a','Aaron'),
+('o','o','Aaron'),
 ('s','s','Sergio'),
 ('d','d','Diana'),
 ('l','l','Luis'),
 ('p','p','Pepe');
+INSERT INTO trabajador(usuario, contraseña,nombre,tipo) VALUES
+('a','a','Aaron admin','administrador');
 
 INSERT INTO subproceso(subproceso)VALUES
 ('Recolección'),

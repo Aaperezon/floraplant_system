@@ -1,13 +1,16 @@
 <?php
-require_once "./connection/connection.php";
+include "./connection/Connection.php";
+
+
 $subproceso = $usuario = $contraseña ="";
+
 session_start();
 if(isset($_SESSION['POST'])){
     $session = $_SESSION['POST'];
     unset($_SESSION['POST']);
     if($session != null && isset($session['fallo']) == true){
         $message = "Usuario y/o contraseña incorrectos.";
-        print_r($session);
+        //print_r($session);
     }else{
         $message = "";
     }
@@ -18,31 +21,34 @@ else{
 
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-    $subproceso = trim($_POST["subproceso"]);
-    $usuario = trim($_POST["usuario"]);
-    $contraseña = trim($_POST["contraseña"]);
-
-    $stmt = $pdo->prepare("CALL ReconocerTrabajador(?, ?, ?)");
-    $stmt->bind_param("iss", $subproceso, $usuario, $contraseña);
-    try{
-        if($stmt->execute()){
-            $stmt = $stmt->get_result()->fetch_all();   
-            $_POST = $stmt[0];
-            session_start();
-            $_SESSION['POST'] = $_POST;
-            header("location: punto_de_control.php");
-        }else{
-            session_start();
-            $_POST['fallo'] = true; 
-            $_SESSION['POST'] = $_POST;
-            header("location: .");
-            
-        }
-    }catch(Exception $e){
-
+    session_destroy();
+    $data = [
+        "id_subproceso" => trim($_POST["subproceso"]),
+        "usuario"=> trim($_POST["usuario"]),
+        "contraseña" => trim($_POST["contraseña"])
+    ];
+    $result = json_decode(Post("LogInWorker",$data), true);
+    if($result["tipo"] == "administrador"){
+        session_start();
+        $_POST['id_trabajador'] = $result['id_trabajador'];
+        $_POST['id_subproceso'] = $result['id_subproceso'];
+        unset($_POST['usuario'],$_POST['contraseña'],$_POST['subproceso']);
+        $_SESSION['POST'] = $_POST;
+        header("location: admin.php");
+    }else if($result["tipo"] == "trabajador"){
+        session_start();
+        $_POST['id_trabajador'] = $result['id_trabajador'];
+        $_POST['id_subproceso'] = $result['id_subproceso'];
+        unset($_POST['usuario'],$_POST['contraseña'],$_POST['subproceso']);
+        $_SESSION['POST'] = $_POST;
+        header("location: punto_de_control.php");
+    }else if ($result["tipo"] == "Error"){
+        session_start();
+        $_POST['fallo'] = true; 
+        unset($_POST['usuario'],$_POST['contraseña'],$_POST['subproceso']);
+        header("location: .");
     }
-  
-    mysqli_close($pdo);
+      
 }
 ?>
  
@@ -56,8 +62,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <script src="./js/jquery-3.6.0.min" ></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="./css/login.css">
-    <script src="js/connection.js"></script>
-    <script src="js/index.js"></script>
 </head>
 <body>
 
@@ -72,7 +76,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             <div class="carousel-item carousel-image"  data-interval="3000">
                 <img src="./images/carousel3.jpg" class="" alt="...">
             </div>
-
+               
             <div class="container">
             <div class="row">
                 <div class="col-1">
@@ -111,11 +115,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                     <option selected value="">Selecciona alguno</option>
 
                                         <?php  
-                                            $stmt = $pdo->prepare("CALL LeerSubprocesos()");
-                                            $stmt->execute();
-                                            $stmt = $stmt->get_result()->fetch_all();   
-                                            foreach($stmt as $val){ echo '<option value="'.$val[0].'">'.$val[1].'</option>'; }
-                                            mysqli_close($pdo);
+                                            $result = json_decode(Get("ReadSubprocess",[]), true);
+                                            foreach($result as $val){ 
+                                                echo '<option value="'.$val['id'].'">'.$val['subproceso'].'</option>'; 
+                                            }
                                         ?>
                                     </select>
                                 </div>

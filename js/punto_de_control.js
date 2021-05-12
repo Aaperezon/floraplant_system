@@ -6,21 +6,19 @@ let load = () => {
     }
     function Llamado1(url){
         $.ajax({
-        type: "GET",
-        url: url,
-        datatype: "json",
-        async: false,
-        success: function(responseFunction){
-            responseFunction = JSON.parse(responseFunction);
-            data = responseFunction;
-        }
+            type: "GET",
+            url: url,
+            async: false,
+            success: function(responseFunction){
+                responseFunction = JSON.parse(responseFunction);
+                data = responseFunction;
+            }
         });
     }
     function Llamado2(url){
         $.ajax({
             type: "GET",
             url: url,
-            datatype: "json",
             async: false,
             success: function(responseFunction){
             responseFunction = JSON.parse(responseFunction);
@@ -39,11 +37,11 @@ let load = () => {
     function Ejecutar(){
         if (Notification.permission === 'granted') {
             let id_subproceso = document.getElementById("id_subproceso_aux").value
-            Llamado1("./modulos/revisar_notificacion.php/?id_subproceso="+String(id_subproceso));
+            Llamado1("http://127.0.0.1:5000/CheckNotifications/?id_subproceso="+String(id_subproceso));
             if(data != null){
                 data.forEach(element => {
                     CrearNotificacion(element.subproceso, element.orden, element.descripcion)
-                    Llamado2("./modulos/revisar_notificacion.php/?id_notificacion="+String(element.id));
+                    Llamado2("http://127.0.0.1:5000/ViewNotification/?id_notificacion="+String(element.id));
                 });
                 location.reload();
             }

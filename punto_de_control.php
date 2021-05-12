@@ -1,5 +1,5 @@
 <?php
-    include "./connection/connection.php";
+    include "./connection/Connection.php";
     session_start();
     $nombre_subproceso = "Subproceso error";
     $nombre_trabajador = "Trabajador error";
@@ -8,51 +8,39 @@
     if(isset($_SESSION['POST'])){
         $session = $_SESSION['POST'];
         //print_r($session);
-        $id_trabajador = $session[0];
-        $id_subproceso = $session[1];
-
-        $stmt = $pdo->prepare("CALL ObtenerDatosDeRegistro(?, ?)");
-        $stmt->bind_param("ii",$id_trabajador, $id_subproceso);
-        if( $stmt->execute() ){
-            $stmt = $stmt->get_result();
-            while($row = $stmt->fetch_array(MYSQLI_ASSOC)){
-                //print_r($row);
-                $nombre_subproceso = $row['subproceso'];
-                $nombre_trabajador = $row['nombre'];
-            }
-        }
+        $id_trabajador = $session["id_trabajador"];
+        $id_subproceso = $session["id_subproceso"];
+        $data = [
+            "id_subproceso" => $id_subproceso,
+            "id_trabajador"=> $id_trabajador,
+        ];
+        $result = json_decode(Get("GetDataRegitry",$data), true);
+        //print_r($result);
+        $nombre_subproceso = $result['subproceso'];
+        $nombre_trabajador = $result['nombre'];
+       
     }
 
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $id_punto_de_control = trim($_POST["id_punto_de_control"]);
-        $id_trabajador = trim($_POST["id_trabajador"]);
         $terminar = trim($_POST["terminar"]);
+        $data = [
+            "id_punto_de_control" => trim($_POST["id_punto_de_control"]),
+            "id_trabajador"=> trim($_POST["id_trabajador"]),
+        ];
         if($terminar == false){
-            $stmt = $pdo->prepare("CALL EmpezarActividad(?, ?)");
-            $stmt->bind_param("ii", $id_punto_de_control, $id_trabajador);
+            $result = json_decode(Post("StartActivity",$data), true);
         }
         else if($terminar == true){
-            $stmt = $pdo->prepare("CALL TerminarActividad(?, ?)");
-            $stmt->bind_param("ii", $id_punto_de_control, $id_trabajador);
+            $result = json_decode(Post("EndActivity",$data), true);
+        }
+        $_SERVER["REQUEST_METHOD"] = "";
+        unset($_POST['id_punto_de_control']);
+        unset($_POST['id_trabajador']);
+        unset($_POST['terminar']);
         
-        }
-        if($stmt->execute()){
-            $_SERVER["REQUEST_METHOD"] = "";
-            unset($_POST['id_punto_de_control']);
-            unset($_POST['id_trabajador']);
-            unset($_POST['terminar']);
-            /*
-            $_POST['0'] = $id_trabajador;
-            $_POST['1'] = $id_subproceso;
-            print_r($_POST);
-            */
-        }else{
-            echo "Error en la base de datos.";
-        }
       
     }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,7 +60,7 @@
     <link rel="stylesheet" href="./css/punto_de_control.css">
 </head>
 <body >
-<?php echo('<input type="hidden" id="id_subproceso_aux" value='.$id_subproceso.'>'); ?>
+<?php echo('<input type="hidden" id="id_subproceso_aux" value='.$id_subproceso.'>');?>
 
 <div class="pos-f-t" style="width: 98vw" >
     <div class="collapse" id="navbarToggleExternalContent">
@@ -133,48 +121,49 @@
             <tbody id="tableBody">
                 <?php
                     //error_reporting(0);
-                    $stmt = $pdo->prepare("CALL VerPuntosDeControl(?,?);");
-                    $stmt->bind_param("ii",$id_subproceso, $id_trabajador );
-                    if($stmt->execute()){
-                        $counter = 0;
-                        $stmt = $stmt->get_result();
-                        while($row = $stmt->fetch_array(MYSQLI_ASSOC)){
-                            $counter++;
-                            if($row['estado'] == 'Inicio'){
-                                echo '<tr class="table-green">';
-                                    echo '<td >'.$counter.'</td>';
-                                    echo '<td >'.$row['orden'].'</td>';
-                                    echo '<td >'.$row['descripcion'].'</td>';
-                                    echo '<td >'.$row['estado'].'</td>';
-                                    echo ('<td>
-                                        <form id="theForm" action="'. htmlspecialchars($_SERVER["PHP_SELF"])    .'" method="POST">
-                                            <input type="hidden" name="id_punto_de_control" value="'.$row['id'].'"/>
-                                            <input type="hidden" name="id_trabajador" value="'.$id_trabajador.'"/>
-                                            <input type="hidden" name="terminar" value="'.false.'"/>
-                                            <button type="submit" id="btn"  class="btn btn-light">Empezar</button>
-                                        </form>
-                                    </td>');
-                                echo '</tr>';
-                            }
-                            else if($row['estado'] == 'En proceso'){
-                                echo '<tr class="table-yellow">';
-                                    echo '<td >'.$counter.'</td>';
-                                    echo '<td >'.$row['orden'].'</td>';
-                                    echo '<td >'.$row['descripcion'].'</td>';
-                                    echo '<td >'.$row['estado'].'</td>';
-                                    echo ('<td>
-                                        <form id="theForm" action="'. htmlspecialchars($_SERVER["PHP_SELF"])    .'" method="POST">
-                                            <input type="hidden" name="id_punto_de_control" value="'.$row['id'].'"/>
-                                            <input type="hidden" name="id_trabajador" value="'.$id_trabajador.'"/>
-                                            <input type="hidden" name="terminar" value="'.true.'"/>
-                                            <button type="submit" id="btn" class="btn btn-light">Terminar</button>
-                                        </form>
-                                    </td>');
-                                echo '</tr>';
-                            }
+                    $data = [
+                        "id_subproceso" => $id_subproceso,
+                        "id_trabajador"=> $id_trabajador,
+                    ];
+                    $result = json_decode(Get("ReadCheckpoints",$data), true);
+                    //print_r($result);
+                    $counter = 0;
+                    foreach($result as $row){
+                        $counter++;
+                        if($row['estado'] == 'Inicio'){
+                            echo '<tr class="table-green">';
+                                echo '<td >'.$counter.'</td>';
+                                echo '<td >'.$row['orden'].'</td>';
+                                echo '<td >'.$row['descripcion'].'</td>';
+                                echo '<td >'.$row['estado'].'</td>';
+                                echo ('<td>
+                                    <form id="theForm" action="'. htmlspecialchars($_SERVER["PHP_SELF"])    .'" method="POST">
+                                        <input type="hidden" name="id_punto_de_control" value="'.$row['id'].'"/>
+                                        <input type="hidden" name="id_trabajador" value="'.$id_trabajador.'"/>
+                                        <input type="hidden" name="terminar" value="'.false.'"/>
+                                        <button type="submit" id="btn"  class="btn btn-light">Empezar</button>
+                                    </form>
+                                </td>');
+                            echo '</tr>';
                         }
-
-                    }else{
+                        else if($row['estado'] == 'En proceso'){
+                            echo '<tr class="table-yellow">';
+                                echo '<td >'.$counter.'</td>';
+                                echo '<td >'.$row['orden'].'</td>';
+                                echo '<td >'.$row['descripcion'].'</td>';
+                                echo '<td >'.$row['estado'].'</td>';
+                                echo ('<td>
+                                    <form id="theForm" action="'. htmlspecialchars($_SERVER["PHP_SELF"])    .'" method="POST">
+                                        <input type="hidden" name="id_punto_de_control" value="'.$row['id'].'"/>
+                                        <input type="hidden" name="id_trabajador" value="'.$id_trabajador.'"/>
+                                        <input type="hidden" name="terminar" value="'.true.'"/>
+                                        <button type="submit" id="btn" class="btn btn-light">Terminar</button>
+                                    </form>
+                                </td>');
+                            echo '</tr>';
+                        }
+                    }
+                   if($result == []){
                         echo '<td > </td>';
                         echo '<td > </td>';
                         echo '<td > No tienes pedidos pendientes.</td>';
