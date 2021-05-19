@@ -1,0 +1,22 @@
+.menu-background{
+  background-color: white;
+}
+.title-text{
+  color: white;
+}
+.header{
+  background-color: rgb(231, 171, 231);
+ 
+}
+.table-green{
+  background-color: rgb(104, 194, 104);
+}
+.table-yellow{
+  background-color: rgb(252, 255, 83);
+}
+.navbar-toggler-icon{
+  background-color: rgb(167, 124, 167);
+}
+#title{
+  font-size: 40px;
+}

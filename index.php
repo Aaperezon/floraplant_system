@@ -5,11 +5,14 @@ include "./connection/Connection.php";
 $subproceso = $usuario = $contraseña ="";
 
 session_start();
+/*
 if(isset($_SESSION['POST'])){
     $session = $_SESSION['POST'];
     unset($_SESSION['POST']);
+    print_r($session);
     if($session != null && isset($session['fallo']) == true){
         $message = "Usuario y/o contraseña incorrectos.";
+        echo("Fallo en entrada de datos");
         //print_r($session);
     }else{
         $message = "";
@@ -18,7 +21,9 @@ if(isset($_SESSION['POST'])){
 else{
     $message = "";
 }
+*/
 
+$message = "";
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     session_destroy();
@@ -27,6 +32,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         "usuario"=> trim($_POST["usuario"]),
         "contraseña" => trim($_POST["contraseña"])
     ];
+    $attempted_subprocess = trim($_POST["subproceso"]);
     $result = json_decode(Post("LogInWorker",$data), true);
     if($result["tipo"] == "administrador"){
         session_start();
@@ -34,19 +40,42 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $_POST['id_subproceso'] = $result['id_subproceso'];
         unset($_POST['usuario'],$_POST['contraseña'],$_POST['subproceso']);
         $_SESSION['POST'] = $_POST;
-        header("location: admin.php");
+        if($_POST['id_subproceso'] == 1 ){
+            header("location: admin.php");
+        }else if($_POST['id_subproceso'] == 2 ){
+            header("location: operador.php");
+        }else{
+            header("location: punto_de_control.php");
+        }
+    }else if($result["tipo"] == "operador"){
+        session_start();
+        $_POST['id_trabajador'] = $result['id_trabajador'];
+        $_POST['id_subproceso'] = $result['id_subproceso'];
+        unset($_POST['usuario'],$_POST['contraseña'],$_POST['subproceso']);
+        $_SESSION['POST'] = $_POST;
+        if($_POST['id_subproceso'] == 2 ){
+            header("location: operador.php");
+        }else{
+            $_POST['fallo'] = true; 
+            $message = "Usuario y/o contraseña incorrectos para el subproceso.";
+
+        }
     }else if($result["tipo"] == "trabajador"){
         session_start();
         $_POST['id_trabajador'] = $result['id_trabajador'];
         $_POST['id_subproceso'] = $result['id_subproceso'];
         unset($_POST['usuario'],$_POST['contraseña'],$_POST['subproceso']);
         $_SESSION['POST'] = $_POST;
-        header("location: punto_de_control.php");
+        if($_POST['id_subproceso'] == 1 || $_POST['id_subproceso'] == 2){
+            $_POST['fallo'] = true; 
+            $message = "Usuario y/o contraseña incorrectos para el subproceso.";
+        }else{
+            header("location: punto_de_control.php");
+        }
     }else if ($result["tipo"] == "Error"){
-        session_start();
         $_POST['fallo'] = true; 
-        unset($_POST['usuario'],$_POST['contraseña'],$_POST['subproceso']);
-        header("location: .");
+        $message = "Usuario y/o contraseña incorrectos para el subproceso.";
+
     }
       
 }
@@ -104,7 +133,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                 <br>
                                 <div>
                                     <label for="validationDefault03">Contraseña</label>
-                                    <input type="password" name="contraseña" class="form-control" id="validationDefault03" required value="<?php echo $contraseña; ?>">
+                                    <input type="password" name="contraseña" class="form-control" id="validationDefault03" required value="">
                                 </div>
                                 <br>
                                 <div class="input-group is-invalid">
@@ -120,6 +149,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                                 echo '<option value="'.$val['id'].'">'.$val['subproceso'].'</option>'; 
                                             }
                                         ?>
+                                   
+
                                     </select>
                                 </div>
                                 <br><br>

@@ -20,7 +20,8 @@ CREATE TABLE orden(
 	id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     orden VARCHAR(30) NOT NULL,
     descripcion TEXT,
-    direccion TEXT
+    direccion TEXT,
+    precio float
 );
 -- SELECT * FROM orden;
 
@@ -40,7 +41,7 @@ DROP TABLE IF EXISTS punto_de_control;
 CREATE TABLE punto_de_control(
 	id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
 	id_orden INT NOT NULL,
-	id_subproceso INT NOT NULL DEFAULT 1,
+	id_subproceso INT NOT NULL DEFAULT 3,
 	FOREIGN KEY (id_orden) REFERENCES orden(id),	
     FOREIGN KEY (id_subproceso) REFERENCES subproceso(id)
 
@@ -131,9 +132,10 @@ BEGIN
  
 END //
 DELIMITER ;
--- CALL VerPuntosDeControl(1,1);
+-- CALL VerPuntosDeControl(5,1);
 -- SELECT * FROM actividad;
 -- SELECT * FROM punto_de_control;
+-- SELECT * FROM orden;
 
 
 DROP PROCEDURE IF EXISTS EmpezarActividad;
@@ -144,7 +146,7 @@ BEGIN
     INSERT INTO actividad (id_punto_de_control,id_trabajador, estado) VALUES (id_punto_de_control,id_trabajador,'En proceso');
 END //
 DELIMITER ;
--- CALL EmpezarActividad(1,1);
+-- CALL EmpezarActividad(4,3);
 -- SELECT * FROM actividad;
 
 
@@ -155,14 +157,16 @@ BEGIN
 	DECLARE nid_subproceso INT;
 	DECLARE nid_orden INT;
     INSERT INTO actividad (id_punto_de_control,id_trabajador, estado) VALUES (id_punto_de_control,id_trabajador,'Terminado');
-    SELECT id_subproceso, id INTO nid_subproceso, nid_orden FROM punto_de_control WHERE punto_de_control.id = id_punto_de_control;
+    SELECT id_subproceso, id_orden INTO nid_subproceso, nid_orden FROM punto_de_control WHERE punto_de_control.id = id_punto_de_control;
     INSERT INTO punto_de_control (id_orden, id_subproceso) VALUES (nid_orden, (nid_subproceso+1));
 END //
 DELIMITER ;
---  CALL EmpezarActividad(1,1);
---  CALL TerminarActividad(1,1);
+--  CALL EmpezarActividad(10,1);
+--  
+--  CALL TerminarActividad(10,1);
 --   SELECT * FROM actividad;
 --  SELECT * FROM punto_de_control;
+--  SELECT * FROM notificacion
 
 DROP PROCEDURE IF EXISTS ObtenerDatosDeRegistro;
 DELIMITER //
@@ -200,7 +204,16 @@ END //
 DELIMITER ;
 -- CALL VistoNotificacion(2);
 
-
+DROP PROCEDURE IF EXISTS AgregarOrden;
+DELIMITER //
+CREATE PROCEDURE AgregarOrden(orden TEXT, descripcion TEXT, direccion TEXT, precio FLOAT)
+BEGIN
+	INSERT INTO orden (orden, descripcion, direccion, precio) VALUES (orden,descripcion,direccion,precio);
+    
+END //
+DELIMITER ;
+-- CALL AgregarOrden("nuevaorden","la nueva desccripcion insertada","la nueva direccion insertada",12332);
+SELECT * FROM orden;
 
 
 -- ============================= TRIGGERS =============================== --
@@ -231,7 +244,13 @@ CREATE TRIGGER CrearNotificacion
 AFTER INSERT ON actividad
 FOR EACH ROW
 BEGIN
-	INSERT INTO notificacion(id_actividad) VALUES (new.id);
+-- select * from actividad
+-- select * from notificacion
+	IF new.estado = "Inicio" THEN
+		BEGIN
+			INSERT INTO notificacion(id_actividad) VALUES (new.id);
+		END;
+    END IF;
 END;//
 DELIMITER ;
 
@@ -247,23 +266,26 @@ INSERT INTO trabajador(usuario, contraseña,nombre) VALUES
 ('p','p','Pepe');
 INSERT INTO trabajador(usuario, contraseña,nombre,tipo) VALUES
 ('a','a','Aaron admin','administrador');
+INSERT INTO trabajador(usuario, contraseña,nombre,tipo) VALUES
+('q','q','Aaron operador','operador');
 
 INSERT INTO subproceso(subproceso)VALUES
+('Administrador'),
+('Operador'),
 ('Recolección'),
 ('Empaquetamiento'),
 ('Inspección');
 
 
-INSERT INTO orden (orden, descripcion, direccion)VALUES
-('O.No.1','Esta es una descripcion con 1 plantitas de color rojo','En la calle de las lomas No 1'),
-('O.No.2','Esta es una descripcion con 2 plantitas de color rosa','En la calle de las lomas No 2'),
-('O.No.3','Esta es una descripcion con 3 plantitas de la calle','En la calle de las lomas No 3'),
-('O.No.4','Esta es una descripcion con 4 plantitas de frijol','En la calle de las lomas No 4'),
-('O.No.5','Esta es una descripcion con 5 plantitas para comer','En la calle de las lomas No 5'),
-('O.No.6','Esta es una descripcion con 6 plantitas muertas','En la calle de las lomas No 6'),
-('O.No.7','Esta es una descripcion con 7 plantitas de pollo','En la calle de las lomas No 7'),
-('O.No.8','Esta es una descripcion con 8 plantitas muertas x2','En la calle de las lomas No 8'),
-('O.No.9','Esta es una descripcion con 9 plantitas nuevas','En la calle de las lomas No 9');
+INSERT INTO orden (orden, descripcion, direccion, precio)VALUES
+('O.No.1','Esta es una descripcion con 3 orquideas','En la calle de las lomas No 1',120.60),
+('O.No.2','Esta es una descripcion con 2 orquideas','En la calle de las lomas No 2',120.60),
+('O.No.3','Esta es una descripcion con 1 orquidea','En la calle de las lomas No 3',120.60),
+('O.No.4','Esta es una descripcion con 5 orquideas','En la calle de las lomas No 4',120.60),
+('O.No.5','Esta es una descripcion con 1 orquidea','En la calle de las lomas No 5',322.60),
+('O.No.6','Esta es una descripcion con 1 rosa','En la calle de las lomas No 6',120.60),
+('O.No.7','Esta es una descripcion con 4 rosas','En la calle de las lomas No 7',633.60),
+('O.No.8','Esta es una descripcion con 4 anturios','En la calle de las lomas No 8',120.60),
+('O.No.9','Esta es una descripcion con 2 tulipanes','En la calle de las lomas No 9',120.60);
 -- INSERT INTO orden (orden, descripcion, direccion)VALUES ('O.No.1','BorrarDespues','En la calle de las lomas No 1');
-
 

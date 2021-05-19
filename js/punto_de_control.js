@@ -38,9 +38,12 @@ let load = () => {
         if (Notification.permission === 'granted') {
             let id_subproceso = document.getElementById("id_subproceso_aux").value
             Llamado1("http://127.0.0.1:5000/CheckNotifications/?id_subproceso="+String(id_subproceso));
-            if(data != null){
+            if(data.length > 0){
+                console.log(data)
                 data.forEach(element => {
                     CrearNotificacion(element.subproceso, element.orden, element.descripcion)
+                });
+                data.forEach(element => {
                     Llamado2("http://127.0.0.1:5000/ViewNotification/?id_notificacion="+String(element.id));
                 });
                 location.reload();

@@ -1,17 +1,26 @@
 <?php
     include "./connection/Connection.php";
 
-    echo("aSDasds");
-    $asd = "";
+
+
+    if(isset($_SESSION['POST'])){
+        $session = $_SESSION['POST'];
+        $id_trabajador = $session["worker"];
+       
+    }
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $asd = $_POST;
-        print_r($asd);
-        echo('
+        $input = trim($_POST["worker"]);
+        echo("
             <script>
-                console.log("AAAAAAAAAAAAAAAA")
+                console.log('".$input."')
             </script>
-        
-        ');
+        ");
+        if($input == "settings"){
+
+
+        }
+
+      
         /*
         $terminar = trim($_POST["terminar"]);
         $data = [
@@ -51,7 +60,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <script src="./js/jquery-3.6.0.min" ></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <script src="./js/chart.min.js" ></script>
+    <script src="./js/admin.js" ></script>
     <link rel="stylesheet" href="./css/admin.css">
+
     
 </head>
 <body>
@@ -77,7 +89,15 @@
         ?>
         <form action="<?php htmlspecialchars($_SERVER["PHP_SELF"])?> " method="POST">
                 <input type="hidden" name="worker" value="settings"/>
-                <button type="submit" >Ajustes</button>
+                <button type="submit" id ="settingsBtn">Ajustes</button>
+        </form>
+        <form action="./index.php"  method="CERRAR SESION">
+            <?php  
+                if($_SERVER["REQUEST_METHOD"] == "CERRAR SESION"){
+                    session_destroy();
+                }
+            ?>
+            <button type="submit" class="btn btn-secondary btn-lg">Cerrar sesión</button>
         </form>
     </div>
       
@@ -94,13 +114,14 @@
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <?php
-                                        print_r($asd);
-                                    ?>
+                                   
                                     <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                         Hoy
                                     </div>
-                                    <div class="h7 mb-0 font-weight-bold text-gray-800">2021-04-30</div>
+                                    <div class="h7 mb-0 font-weight-bold text-gray-800">
+                                        <div id="date">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -155,13 +176,15 @@
                     <div class="card border-left-primary shadow h-100 py-2">
                         <div class="card-body">
                             <div class="row align-items-center">
-                                <div class="col">
-                                    <div class="row">
+                                <div class="col" id="principalColContainer1">
+                                    <div class="row" >
+
                                         <div class="col-9">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                                 Grafica
                                             </div>
                                         </div>
+
                                         <div class="col-3">
                                             <select class="custom-select" id="validatedInputGroupSelect" required name="subproceso">
                                                 <option selected value="">Selecciona alguno</option>
@@ -173,14 +196,44 @@
                                             </select>
                                         </div>
                                     </div>
+
                                     <br><br>
-                                    
                                     <div class="h7 mb-0 font-weight-bold text-gray-800">
-                                        GRAFICA-GRAFICA-GRAFICA-GRAFICA-GRAFICA-GRAFICA-GRAFICA-GRAFICA-GRAFICA-GRAFICA-GRAFICA-GRAFICA-
-                                        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+                                        <canvas id="canvas"></canvas>
+
                                     </div>
                                     
                                 </div>
+                                <!--
+                                <div class="col" id="principalColContainer2">
+                                    <div class="row" >
+
+                                        <div class="col-9">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Grafica
+                                            </div>
+                                        </div>
+
+                                        <div class="col-3">
+                                            <select class="custom-select" id="validatedInputGroupSelect" required name="subproceso">
+                                                <option selected value="">Selecciona alguno</option>
+                                                    <option value="Valor">Opcion1</option>
+                                                    <option value="Valor">Opcion2</option>
+                                                    <option value="Valor">Opcion3</option>
+                                                    <option value="Valor">Opcion4</option>
+                                                   
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <br><br>
+                                    <div class="h7 mb-0 font-weight-bold text-gray-800">
+                                        <canvas id="canvas"></canvas>
+
+                                    </div>
+                                    
+                                </div>
+                                -->
                               
                             </div>
                         </div>

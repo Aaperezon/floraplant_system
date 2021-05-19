@@ -32,12 +32,13 @@
   color: #f1f1f1;
 }
 
-/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
 #main {
   padding: 20px;
 }
 
 button {
+    margin-top: 5px;
+    margin-bottom: 5px;
     width:247px;
     height: 50px;
     border:none;
@@ -58,4 +59,12 @@ button:active {
 button:focus {
   background:black;
   color:white; 
+}
+#principalColContainer2 {
+  pointer-events: none;
+
+}
+#principalColContainer1 {
+  pointer-events: none;
+
 }
