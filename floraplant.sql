@@ -95,7 +95,7 @@ CREATE TABLE notificacion(
 
 
 
--- ===================== STORED PROCEDURES ==============================--
+-- ===================== STORED PROCEDURES IF USED BAD IMPLEMENTATION==============================--
 DROP PROCEDURE IF EXISTS InicioSesionTrabajador;
 DELIMITER //
 CREATE PROCEDURE InicioSesionTrabajador(id_subproceso INT, usuario VARCHAR(255), contraseña TEXT)
@@ -192,7 +192,7 @@ BEGIN
 
 END //
 DELIMITER ;
--- CALL RevisarNotificaciones(1);
+-- CALL RevisarNotificaciones(3);
 
 
 DROP PROCEDURE IF EXISTS VistoNotificacion;
@@ -256,7 +256,7 @@ DELIMITER ;
 
 
 
--- ================== INSERCIONES EN TABLAS =============================== --
+-- ================== INSERCIONES EN TABLAS PRUEBAS=============================== --
 
 INSERT INTO trabajador(usuario, contraseña,nombre) VALUES
 ('o','o','Aaron'),
