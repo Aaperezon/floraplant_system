@@ -259,15 +259,13 @@ DELIMITER ;
 -- ================== INSERCIONES EN TABLAS PRUEBAS=============================== --
 
 INSERT INTO trabajador(usuario, contraseña,nombre) VALUES
-('o','o','Aaron'),
-('s','s','Sergio'),
-('d','d','Diana'),
-('l','l','Luis'),
-('p','p','Pepe');
+('diana','diana','Diana'),
+('luis','luis','Luis'),
+('pepe','pepe','Pepe');
 INSERT INTO trabajador(usuario, contraseña,nombre,tipo) VALUES
-('a','a','Aaron admin','administrador');
+('aaron','aaron','Aaron','administrador');
 INSERT INTO trabajador(usuario, contraseña,nombre,tipo) VALUES
-('q','q','Aaron operador','operador');
+('sergio','sergio','Sergio','operador');
 
 INSERT INTO subproceso(subproceso)VALUES
 ('Administrador'),

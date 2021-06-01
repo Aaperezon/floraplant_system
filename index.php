@@ -85,7 +85,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Inicio</title>
+    <title>JORGE - Floraplant</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <script src="./js/jquery-3.6.0.min" ></script>
@@ -111,10 +111,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <div class="col-1">
                 </div>
                 <div class="col-10">
-                    <!-- <?php print_r($_POST);?> -->
                     <br><br><br><br><br>
                     <div class="page-header header" >
-                        <h1>Registro</h1>
+                        <h1 style="font-weight: bold; font-size: 4em;">JORGE</h1>
                     </div>
                     <br>
                     <br>
